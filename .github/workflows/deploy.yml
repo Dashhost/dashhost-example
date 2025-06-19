@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Deploy Dashhost App
+
+jobs:
+  dashhost-build:
+    runs-on: ubuntu-latest
+
+    env:
+      API_KEY: ${{ secrets.DASHHOST_APP_TOKEN }}
+      APP_ID: ${{ secrets.DASHHOST_APP_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch environment variables
+        id: fetch_env
+        run: |
+          curl -s https://api.dashhost.app/v1/project/env/$APP_ID/$API_KEY/ \
+          | jq -r 'to_entries[] | "export \(.key)=\(.value)"' >> $GITHUB_ENV
+
+      - name: Fetch Config
+        id: fetch_config
+        run: |
+          curl -s https://api.dashhost.app/v1/project/config/$APP_ID/$API_KEY/ > config.json
+          FLUTTER_VERSION=$(jq -r '.flutter_version' config.json)
+          echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "${{ steps.fetch_config.outputs.flutter_version }}"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web App
+        run: flutter build web --release --dart-define-from-file=config.json
+
+      - name: Compress build output
+        run: tar -czf build.tar.gz -C build/web .
+
+      # - name: Upload to Dashhost
+      #   run: |
+      #     curl -X POST -H "Authorization: Bearer $API_KEY" \
+      #       -F "app_id=$APP_ID" \
+      #       -F "build=@build.tar.gz" \
+      #       https://api.dashhost.com/deploy
