@@ -43,9 +43,8 @@ jobs:
       - name: Compress build output
         run: tar -czf build.tar.gz -C build/web .
 
-      # - name: Upload to Dashhost
-      #   run: |
-      #     curl -X POST -H "Authorization: Bearer $API_KEY" \
-      #       -F "app_id=$APP_ID" \
-      #       -F "build=@build.tar.gz" \
-      #       https://api.dashhost.com/deploy
+      - name: Upload to Dashhost
+        run: |
+          curl -X POST \
+            -F "build=@build.tar.gz" \
+            https://api.dashhost.app/v1/project/deploy/$APP_ID/$API_KEY/
