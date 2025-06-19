@@ -41,10 +41,12 @@ jobs:
         run: flutter build web --release --dart-define-from-file=config.json
 
       - name: Compress build output
-        run: tar -czf build.tar.gz -C build/web .
+        run: |
+          cd build/web
+          zip -r ../../build.zip .
 
       - name: Upload to Dashhost
         run: |
           curl -X POST \
-            -F "build=@build.tar.gz" \
+            -F "build=@build.zip" \
             https://api.dashhost.app/v1/project/deploy/$APP_ID/$API_KEY/
