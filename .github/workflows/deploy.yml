@@ -16,6 +16,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Init deployment and get deployment tag
+        id: init_deploy
+        run: |
+          GH_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          response=$(curl -s https://api.dashhost.app/v1/project/deploy/$APP_ID/$API_KEY/)
+
+
+
+          echo "Response: $response"
+
+          tag=$(echo "$response" | jq -r '.deployment_tag')
+
+          if [ -z "$tag" ] || [ "$tag" == "null" ]; then
+            echo "Failed to extract deployment_tag from response."
+            exit 1
+          fi
+
+          echo "deployment_tag=$tag" >> $GITHUB_OUTPUT
+
       - name: Fetch environment variables
         id: fetch_env
         run: |
@@ -48,5 +68,6 @@ jobs:
       - name: Upload to Dashhost
         run: |
           curl -X POST \
+            -F "deployment_tag=${{ steps.init_deploy.outputs.deployment_tag }}"
             -F "build=@build.zip" \
             https://api.dashhost.app/v1/project/deploy/$APP_ID/$API_KEY/

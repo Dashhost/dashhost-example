@@ -8,7 +8,7 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("About Dashhost"),
+        title: const Text("About Dashhost!!"),
         leading: IconButton(
           icon: const Icon(Icons.navigate_before),
           onPressed: () {
@@ -24,12 +24,10 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("DISCLAIMER:", style: TextStyle(fontSize: 24)),
             Text(
-              "DISCLAIMER:",
-              style: TextStyle(fontSize: 24),
+              'Rick and Morty is created by Justin Roiland and Dan Harmon for Adult Swim.\nThe data and images are used without claim of ownership and belong to their respective owners.\nThis API is open source and uses a BSD license',
             ),
-            Text(
-                'Rick and Morty is created by Justin Roiland and Dan Harmon for Adult Swim.\nThe data and images are used without claim of ownership and belong to their respective owners.\nThis API is open source and uses a BSD license'),
           ],
         ),
       ),
