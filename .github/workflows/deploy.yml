@@ -21,10 +21,11 @@ jobs:
         run: |
           GH_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          response=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d "{\"logs_url\": \"$GH_URL\"}" \
-            https://api.dashhost.app/v1/project/init-deploy/$APP_ID/$API_KEY/)
+          response=$(jq -n --arg url "$GH_URL" '{logs_url: $url}' | \
+            curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -d @- \
+              https://api.dashhost.app/v1/project/init-deploy/$APP_ID/$API_KEY/)
 
           echo "Response: $response"
 
